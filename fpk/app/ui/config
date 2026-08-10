@@ -1,0 +1,6 @@
+{
+  "protocol": "http",
+  "port": 3010,
+  "path": "/",
+  "title": "fn-codex"
+}

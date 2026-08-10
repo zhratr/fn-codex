@@ -1,0 +1,12 @@
+appname=fn-codex
+version=0.1.0
+display_name=fn-codex
+display_name_zh=fn-codex 社区编码工作台
+description=Community browser coding-agent workspace for fnOS
+description_zh=面向 fnOS 的社区浏览器编码工作台
+platform=x86_64
+service_port=3010
+protocol=http
+source=github.com/zhratr/fn-codex
+desktop_uidir=ui
+desktop_applaunchname=fn-codex

@@ -1,0 +1,50 @@
+name: Build fnOS FPK release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }} FPK
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [x86_64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate source and app
+        run: npm run check
+      - name: Build self-contained FPK
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "${VERSION}" ] || [ "${VERSION}" = "${GITHUB_REF_NAME}" ]; then VERSION=0.1.0; fi
+          PLATFORM="${{ matrix.platform }}" VERSION="${VERSION}" bash scripts/build-fpk.sh
+      - name: Validate package source
+        run: bash scripts/validate-fpk.sh --source fpk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fn-codex-${{ matrix.platform }}
+          path: dist/*.fpk
+
+  release:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish GitHub Release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" dist/*.fpk --generate-notes --title "fn-codex ${GITHUB_REF_NAME}"

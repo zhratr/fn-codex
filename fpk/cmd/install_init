@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+mkdir -p "${TRIM_APPHOME:-${TRIM_APPDEST}/home}/workspace" "${TRIM_APPDATA:-${TRIM_APPDEST}/var}/state" "${TRIM_PKGVAR:-${TRIM_APPDEST}/var}"
+exit 0

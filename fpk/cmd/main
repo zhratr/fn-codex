@@ -1,0 +1,50 @@
+#!/bin/sh
+set -eu
+
+APPDEST="${TRIM_APPDEST:?TRIM_APPDEST is required}"
+VAR_DIR="${TRIM_PKGVAR:-${APPDEST}/var}"
+PID_FILE="${VAR_DIR}/fn-codex.pid"
+LOG_FILE="${VAR_DIR}/fn-codex.log"
+NODE_BIN="${APPDEST}/target/runtime/node"
+SERVER="${APPDEST}/target/app/server/server.js"
+
+mkdir -p "${VAR_DIR}"
+
+is_running() {
+  [ -s "${PID_FILE}" ] && kill -0 "$(cat "${PID_FILE}")" 2>/dev/null
+}
+
+start_service() {
+  if is_running; then exit 0; fi
+  if [ ! -x "${NODE_BIN}" ] || [ ! -f "${SERVER}" ]; then
+    echo "fn-codex runtime is incomplete: ${NODE_BIN}" >&2
+    exit 1
+  fi
+  export FN_CODEX_BIND="${FN_CODEX_BIND:-127.0.0.1}"
+  export FN_CODEX_PORT="${FN_CODEX_PORT:-3010}"
+  export FN_CODEX_WORKSPACE="${FN_CODEX_WORKSPACE:-${TRIM_APPHOME:-${APPDEST}/home}/workspace}"
+  export FN_CODEX_STATE_DIR="${FN_CODEX_STATE_DIR:-${TRIM_APPDATA:-${APPDEST}/var}/state}"
+  export FN_CODEX_ALLOW_COMMANDS="${FN_CODEX_ALLOW_COMMANDS:-0}"
+  export CODEX_API_URL="${CODEX_API_URL:-}"
+  export CODEX_API_KEY="${CODEX_API_KEY:-}"
+  export CODEX_MODEL="${CODEX_MODEL:-}"
+  nohup "${NODE_BIN}" "${SERVER}" >>"${LOG_FILE}" 2>&1 &
+  echo "$!" >"${PID_FILE}"
+}
+
+stop_service() {
+  if is_running; then
+    kill "$(cat "${PID_FILE}")" 2>/dev/null || true
+    for _ in 1 2 3 4 5; do is_running || break; sleep 1; done
+  fi
+  rm -f "${PID_FILE}"
+}
+
+case "${1:-status}" in
+  start) start_service ;;
+  stop) stop_service ;;
+  restart) stop_service; start_service ;;
+  status) if is_running; then echo "running ($(cat "${PID_FILE}"))"; else echo "stopped"; fi ;;
+  log) touch "${LOG_FILE}"; tail -n 100 "${LOG_FILE}" ;;
+  *) echo "usage: $0 {start|stop|restart|status|log}" >&2; exit 2 ;;
+esac

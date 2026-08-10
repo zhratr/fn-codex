@@ -1,0 +1,12 @@
+{
+  "name": "fn-codex",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A community browser workspace for coding agents on fnOS.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "node app/server/server.js",
+    "check": "node --check app/server/server.js && node test/server.test.js",
+    "build:fpk": "bash scripts/build-fpk.sh"
+  }
+}

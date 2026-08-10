@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+"${TRIM_APPDEST}/cmd/main" stop 2>/dev/null || true
+echo "fn-codex service stopped; user workspace and state were retained."
+exit 0

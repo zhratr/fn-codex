@@ -1,0 +1,7 @@
+dist/
+coverage/
+node_modules/
+app/workspace/
+app/state/
+*.fpk
+.DS_Store
