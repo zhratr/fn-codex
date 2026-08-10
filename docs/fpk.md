@@ -1,6 +1,6 @@
 # fnOS FPK packaging notes
 
-The package is a native fnOS service package. It does not use Docker. The first release publishes an x86_64 FPK for the confirmed NAS target and an ARM64 FPK from the same source tree.
+The package is a native fnOS service package. It does not use Docker. The corrected release publishes an x86_64 FPK for the confirmed NAS target and an ARM64 FPK from the same source tree.
 
 ## Evidence and contract
 
@@ -10,7 +10,7 @@ The implementation follows the current fnOS developer entry points:
 - [Create an fnOS application](https://developer.fnnas.com/docs/quick-started/create-application)
 - [fnOS Apps community packaging reference](https://github.com/conversun/fnos-apps), which documents manual installation from a Release `.fpk`, a common `manifest`/`app.tgz`/`cmd`/`config`/`wizard` layout, and multi-architecture release assets.
 
-The repository keeps an inspectable package source in `fpk/`. On a development machine with the fnOS packager installed, run:
+The repository keeps a complete fnpack-style package source in `fpk/`, including `app/server`, `app/ui`, UI icons, lifecycle scripts, manifest, and config. On a development machine with the fnOS packager installed, run:
 
 ```sh
 fnpack build --directory fpk
@@ -21,11 +21,14 @@ The fallback `scripts/build-fpk.sh` builds a compressed `.fpk` with the same top
 ## Architecture
 
 ```sh
-PLATFORM=x86_64 VERSION=0.1.0 bash scripts/build-fpk.sh
-PLATFORM=arm64 VERSION=0.1.0 bash scripts/build-fpk.sh
+PLATFORM=x86_64 VERSION=0.1.1 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
+PLATFORM=arm64 VERSION=0.1.1 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
+bash scripts/validate-fpk-package.sh dist/fn-codex-0.1.1-x86_64.fpk
 ```
 
 `PLATFORM=x86_64` is the first-install priority for the target NAS. The release workflow builds both assets. Runtime binaries are architecture-specific; the JavaScript application and UI are shared.
+
+The package-shape command above intentionally omits the runtime for fast local inspection. GitHub Actions builds each release asset with the matching official Linux Node runtime and runs the same archive validator with `REQUIRE_RUNTIME=1`.
 
 ## Lifecycle and defaults
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="${VERSION:-0.1.0}"
+VERSION="${VERSION:-0.1.1}"
 PLATFORM="${PLATFORM:-x86_64}"
 OUT_DIR="${OUT_DIR:-${ROOT_DIR}/dist}"
 NODE_VERSION="${NODE_VERSION:-22.14.0}"
@@ -17,13 +17,13 @@ esac
 mkdir -p "${OUT_DIR}"
 STAGE="$(mktemp -d "${TMPDIR:-/tmp}/fn-codex-fpk.XXXXXX")"
 trap 'rm -rf "${STAGE}"' EXIT
-mkdir -p "${STAGE}/content/app" "${STAGE}/package/cmd" "${STAGE}/package/config" "${STAGE}/package/wizard"
+mkdir -p "${STAGE}/content" "${STAGE}/package/cmd" "${STAGE}/package/config" "${STAGE}/package/wizard"
 
-cp -R "${ROOT_DIR}/app/server" "${STAGE}/content/app/server"
-cp -R "${ROOT_DIR}/app/ui" "${STAGE}/content/app/ui"
-cp "${ROOT_DIR}/fpk/app/ui/config" "${STAGE}/content/app/ui/config"
+# Keep the archive layout identical to fnpack output: app.tgz contains the
+# contents of app/ at its root (server/, ui/, runtime/), not an extra app/.
+cp -R "${ROOT_DIR}/fpk/app/." "${STAGE}/content/"
 cp "${ROOT_DIR}/fpk/manifest" "${STAGE}/package/manifest"
-sed -i.bak "s/^version=.*/version=${VERSION}/; s/^platform=.*/platform=${PLATFORM}/" "${STAGE}/package/manifest"
+sed -i.bak "s/^version=.*/version=\"${VERSION}\"/; s/^platform=.*/platform=\"${PLATFORM}\"/; s/^arch=.*/arch=\"${PLATFORM}\"/" "${STAGE}/package/manifest"
 rm -f "${STAGE}/package/manifest.bak"
 cp -R "${ROOT_DIR}/fpk/cmd/." "${STAGE}/package/cmd/"
 cp -R "${ROOT_DIR}/fpk/config/." "${STAGE}/package/config/"
@@ -68,7 +68,7 @@ else
   esac
 fi
 
-tar -czf "${STAGE}/package/app.tgz" -C "${STAGE}/content" app runtime 2>/dev/null || tar -czf "${STAGE}/package/app.tgz" -C "${STAGE}/content" app
+tar -czf "${STAGE}/package/app.tgz" -C "${STAGE}/content" .
 OUTPUT="${OUT_DIR}/fn-codex-${VERSION}-${PLATFORM}.fpk"
 tar -czf "${OUTPUT}" -C "${STAGE}/package" .
 echo "built ${OUTPUT}"

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>fn-codex · community workspace</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar panel">
+        <button class="workspace-switcher" title="Current workspace"><span class="brand-mark">⌘</span><span class="workspace-switcher-copy"><strong>fnOS workspace</strong><small>local project</small></span><span class="chevron">⌄</span></button>
+        <div class="sidebar-divider"></div>
+        <button id="newTask" class="new-task"><span>＋</span> New task <kbd>⌘ N</kbd></button>
+        <div class="section-row"><span class="section-label">RECENT</span><kbd>⌘ K</kbd></div>
+        <nav id="tasks" class="task-list" aria-label="Tasks"></nav>
+        <div class="sidebar-links"><div class="sidebar-link active"><span>◫</span> Workspace</div><div class="sidebar-link"><span>◌</span> Activity</div></div>
+        <div class="sidebar-foot"><span class="dot"></span><span id="providerStatus">checking provider…</span><span class="version">v0.1</span></div>
+      </aside>
+
+      <main class="main-column">
+        <header class="topbar panel">
+          <div class="breadcrumbs"><span class="product-name">fn-codex</span><span class="crumb-slash">/</span><span class="eyebrow">WORKSPACE</span><span id="workspaceName" class="workspace-name">loading…</span></div>
+          <div class="top-actions"><span class="local-chip"><span class="dot"></span> LOCAL</span><span class="community-badge">COMMUNITY BUILD</span><button id="refresh" class="icon-button" title="Refresh">↻</button><button class="avatar" title="Local session">H</button></div>
+        </header>
+
+        <section class="conversation panel">
+          <div class="conversation-head"><div class="task-heading"><div class="task-status"><span class="status-ring"></span> TASK</div><h1 id="taskTitle">Welcome to fn-codex</h1></div><div class="task-head-actions"><span id="taskId" class="muted"></span><button class="tiny-button" title="More task actions">•••</button></div></div>
+          <div id="messages" class="messages"><div class="empty-state"><div class="empty-glyph">✦</div><h2>A browser-first coding workspace for fnOS</h2><p>Choose a task or start a new one. This community implementation keeps the workspace, files, terminal output, and change preview together in one local interface.</p><p class="small-note">It is not an official OpenAI desktop application.</p></div></div>
+          <form id="chatForm" class="composer"><textarea id="message" rows="2" placeholder="Ask about the workspace or describe a change…" aria-label="Message"></textarea><button type="submit" class="send-button">Send <span>↵</span></button></form>
+        </section>
+      </main>
+
+      <aside class="inspector">
+        <section class="panel inspector-card"><div class="card-title"><span>FILES</span><button id="upDir" class="tiny-button">↑</button></div><div id="pathCrumb" class="path-crumb">/</div><div id="files" class="file-tree"></div></section>
+        <section class="panel inspector-card preview-card"><div class="card-title"><span>CHANGE PREVIEW</span><span id="diffCount" class="muted">clean</span></div><pre id="diff" class="diff">No local changes detected.</pre></section>
+        <section class="panel inspector-card terminal-card"><div class="card-title"><span>RUN OUTPUT</span><button id="clearOutput" class="tiny-button">clear</button></div><form id="runForm" class="run-form"><input id="command" value="pwd" aria-label="Command" /><button type="submit">Run</button></form><pre id="runOutput" class="run-output">Commands are disabled by default until FN_CODEX_ALLOW_COMMANDS=1 is set.</pre></section>
+      </aside>
+    </div>
+    <div id="toast" class="toast" role="status"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -5,8 +5,10 @@ APPDEST="${TRIM_APPDEST:?TRIM_APPDEST is required}"
 VAR_DIR="${TRIM_PKGVAR:-${APPDEST}/var}"
 PID_FILE="${VAR_DIR}/fn-codex.pid"
 LOG_FILE="${VAR_DIR}/fn-codex.log"
-NODE_BIN="${APPDEST}/target/runtime/node"
-SERVER="${APPDEST}/target/app/server/server.js"
+CONTENT_ROOT="${APPDEST}"
+if [ -d "${APPDEST}/target" ]; then CONTENT_ROOT="${APPDEST}/target"; fi
+NODE_BIN="${CONTENT_ROOT}/runtime/node"
+SERVER="${CONTENT_ROOT}/server/server.js"
 
 mkdir -p "${VAR_DIR}"
 
