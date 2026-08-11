@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VERSION="${VERSION:-0.1.8}"
 PLATFORM="${PLATFORM:-x86_64}"
+
+[[ ! -e "${ROOT_DIR}/fpk/wizard" ]] || { echo "fpk/wizard must not be present" >&2; exit 1; }
+bash "${ROOT_DIR}/scripts/validate-fpk.sh" --source "${ROOT_DIR}/fpk"
 OUT_DIR="${OUT_DIR:-${ROOT_DIR}/dist}"
 NODE_VERSION="${NODE_VERSION:-22.14.0}"
 FNPACK_VERSION="${FNPACK_VERSION:-1.2.3}"

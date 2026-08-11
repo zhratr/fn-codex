@@ -1,1 +1,22 @@
-{}
+{
+    "data-share": {
+        "shares": [
+            {
+                "name": "fn-codex",
+                "permission": {
+                    "rw": [
+                        "fn-codex"
+                    ]
+                }
+            },
+            {
+                "name": "fn-codex/data",
+                "permission": {
+                    "rw": [
+                        "fn-codex"
+                    ]
+                }
+            }
+        ]
+    }
+}

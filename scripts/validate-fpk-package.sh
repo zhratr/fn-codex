@@ -18,6 +18,8 @@ trap 'rm -rf "${WORK}"' EXIT
 
 normalize_tar_list() { sed 's#^\./##; s#/$##' ; }
 
+EXPECTED_RESOURCE=$'{\n    "data-share": {\n        "shares": [\n            {\n                "name": "fn-codex",\n                "permission": {\n                    "rw": [\n                        "fn-codex"\n                    ]\n                }\n            },\n            {\n                "name": "fn-codex/data",\n                "permission": {\n                    "rw": [\n                        "fn-codex"\n                    ]\n                }\n            }\n        ]\n    }\n}\n'
+
 tar_entry() {
   local archive="$1"
   local wanted="$2"
@@ -46,9 +48,13 @@ extract_tar_entry() {
 }
 
 tar -tzf "${PACKAGE}" | normalize_tar_list >"${WORK}/outer.list"
-for required in manifest app.tgz cmd/main cmd/install_init config/privilege config/resource wizard/install ICON.PNG ICON_256.PNG; do
+for required in manifest app.tgz cmd/main cmd/install_init config/privilege config/resource ICON.PNG ICON_256.PNG; do
   grep -qxF "${required}" "${WORK}/outer.list" || { echo "missing outer entry: ${required}" >&2; exit 1; }
 done
+if grep -Eq '^wizard(/|$)' "${WORK}/outer.list"; then
+  echo "FPK must not contain wizard entries" >&2
+  exit 1
+fi
 
 extract_tar_entry "${PACKAGE}" manifest >"${WORK}/manifest"
 grep -Eq '^appname[[:space:]]*=[[:space:]]*"?fn-codex"?[[:space:]]*$' "${WORK}/manifest"
@@ -58,6 +64,8 @@ grep -Eq "^arch[[:space:]]*=[[:space:]]*\"?${PLATFORM}\"?[[:space:]]*$" "${WORK}
 grep -Eq '^os_min_version[[:space:]]*=[[:space:]]*"?1\.2\.0"?[[:space:]]*$' "${WORK}/manifest"
 extract_tar_entry "${PACKAGE}" cmd/install_init >"${WORK}/install_init"
 [[ "$(tr -d '\r' < "${WORK}/install_init")" == $'#!/bin/sh\nexit 0' ]] || { echo "install_init must be an environment-independent no-op" >&2; exit 1; }
+extract_tar_entry "${PACKAGE}" config/resource >"${WORK}/resource"
+cmp -s <(printf '%s' "${EXPECTED_RESOURCE}") "${WORK}/resource" || { echo "config/resource must match the NAS-validated data-share definition" >&2; exit 1; }
 
 extract_tar_entry "${PACKAGE}" app.tgz >"${WORK}/app.tgz"
 tar -tzf "${WORK}/app.tgz" | normalize_tar_list >"${WORK}/app.list"
