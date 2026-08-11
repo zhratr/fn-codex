@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PACKAGE="${1:?usage: PLATFORM=x86_64 VERSION=0.1.6 REQUIRE_RUNTIME=0 $0 package.fpk}"
+PACKAGE="${1:?usage: PLATFORM=x86_64 VERSION=0.1.7 REQUIRE_RUNTIME=0 $0 package.fpk}"
 PLATFORM="${PLATFORM:-x86_64}"
 VERSION="${VERSION:-}"
 REQUIRE_RUNTIME="${REQUIRE_RUNTIME:-0}"
@@ -46,7 +46,7 @@ extract_tar_entry() {
 }
 
 tar -tzf "${PACKAGE}" | normalize_tar_list >"${WORK}/outer.list"
-for required in manifest app.tgz cmd/main config/privilege config/resource wizard/install ICON.PNG ICON_256.PNG; do
+for required in manifest app.tgz cmd/main cmd/install_init config/privilege config/resource wizard/install ICON.PNG ICON_256.PNG; do
   grep -qxF "${required}" "${WORK}/outer.list" || { echo "missing outer entry: ${required}" >&2; exit 1; }
 done
 
@@ -55,6 +55,9 @@ grep -Eq '^appname[[:space:]]*=[[:space:]]*"?fn-codex"?[[:space:]]*$' "${WORK}/m
 grep -Eq "^version[[:space:]]*=[[:space:]]*\"?${VERSION:-[0-9.]+}\"?[[:space:]]*$" "${WORK}/manifest"
 grep -Eq "^platform[[:space:]]*=[[:space:]]*\"?${MANIFEST_PLATFORM}\"?[[:space:]]*$" "${WORK}/manifest"
 grep -Eq "^arch[[:space:]]*=[[:space:]]*\"?${PLATFORM}\"?[[:space:]]*$" "${WORK}/manifest"
+grep -Eq '^os_min_version[[:space:]]*=[[:space:]]*"?1\.2\.0"?[[:space:]]*$' "${WORK}/manifest"
+extract_tar_entry "${PACKAGE}" cmd/install_init >"${WORK}/install_init"
+[[ "$(tr -d '\r' < "${WORK}/install_init")" == $'#!/bin/sh\nexit 0' ]] || { echo "install_init must be an environment-independent no-op" >&2; exit 1; }
 
 extract_tar_entry "${PACKAGE}" app.tgz >"${WORK}/app.tgz"
 tar -tzf "${WORK}/app.tgz" | normalize_tar_list >"${WORK}/app.list"
