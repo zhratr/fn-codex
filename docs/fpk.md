@@ -21,9 +21,9 @@ The fallback `scripts/build-fpk.sh` builds a compressed `.fpk` with the same top
 ## Architecture
 
 ```sh
-PLATFORM=x86_64 VERSION=0.1.4 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
-PLATFORM=arm64 VERSION=0.1.4 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
-bash scripts/validate-fpk-package.sh dist/fn-codex-0.1.4-x86_64.fpk
+PLATFORM=x86_64 VERSION=0.1.5 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
+PLATFORM=arm64 VERSION=0.1.5 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
+bash scripts/validate-fpk-package.sh dist/fn-codex-0.1.5-x86_64.fpk
 ```
 
 `PLATFORM=x86_64` is the first-install priority for the target NAS. The release workflow builds both assets. Runtime binaries are architecture-specific; the JavaScript application and UI are shared.

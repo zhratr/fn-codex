@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PACKAGE="${1:?usage: PLATFORM=x86_64 VERSION=0.1.4 REQUIRE_RUNTIME=0 $0 package.fpk}"
+PACKAGE="${1:?usage: PLATFORM=x86_64 VERSION=0.1.5 REQUIRE_RUNTIME=0 $0 package.fpk}"
 PLATFORM="${PLATFORM:-x86_64}"
 VERSION="${VERSION:-}"
 REQUIRE_RUNTIME="${REQUIRE_RUNTIME:-0}"
@@ -72,7 +72,9 @@ APP_MD5="$(md5 -q "${WORK}/app.tgz" 2>/dev/null || md5sum "${WORK}/app.tgz" | aw
 
 if [[ "${REQUIRE_RUNTIME}" == "1" ]]; then
   grep -qxF "runtime/node" "${WORK}/app.list" || { echo "missing self-contained runtime" >&2; exit 1; }
-  RUNTIME_INFO="$(extract_tar_entry "${WORK}/app.tgz" runtime/node | file -b - 2>/dev/null || true)"
+  RUNTIME_FILE="${WORK}/runtime-node"
+  extract_tar_entry "${WORK}/app.tgz" runtime/node >"${RUNTIME_FILE}"
+  RUNTIME_INFO="$(file -b "${RUNTIME_FILE}" 2>/dev/null || true)"
   case "${PLATFORM}" in
     x86_64) grep -Eq 'ELF 64-bit.*(x86-64|Advanced Micro Devices X86-64)' <<<"${RUNTIME_INFO}" || { echo "runtime architecture mismatch: ${RUNTIME_INFO}" >&2; exit 1; } ;;
     arm64) grep -Eq 'ELF 64-bit.*(ARM aarch64|AArch64)' <<<"${RUNTIME_INFO}" || { echo "runtime architecture mismatch: ${RUNTIME_INFO}" >&2; exit 1; } ;;
