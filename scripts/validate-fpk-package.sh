@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PACKAGE="${1:?usage: PLATFORM=x86_64 VERSION=0.1.5 REQUIRE_RUNTIME=0 $0 package.fpk}"
+PACKAGE="${1:?usage: PLATFORM=x86_64 VERSION=0.1.6 REQUIRE_RUNTIME=0 $0 package.fpk}"
 PLATFORM="${PLATFORM:-x86_64}"
 VERSION="${VERSION:-}"
 REQUIRE_RUNTIME="${REQUIRE_RUNTIME:-0}"
@@ -27,11 +27,12 @@ tar_entry() {
       normalized = entry
       sub(/^\.\//, "", normalized)
       sub(/\/$/, "", normalized)
-      if (normalized == wanted) {
-        print entry
-        exit
+      if (!found && normalized == wanted) {
+        matched_entry = entry
+        found = 1
       }
     }
+    END { if (found) print matched_entry }
   '
 }
 
