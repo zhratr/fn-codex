@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "start": "node app/server/server.js",
-    "check": "node --check app/server/server.js && node test/server.test.js && bash test/cmd-main.test.sh",
+    "check": "node --check app/server/server.js && node test/server.test.js && bash test/cmd-main.test.sh && bash test/ui-config.test.sh",
     "build:fpk": "bash scripts/build-fpk.sh"
   }
 }

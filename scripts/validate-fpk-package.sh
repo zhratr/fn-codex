@@ -94,6 +94,15 @@ if grep -qE '^app(/|$)' "${WORK}/app.list"; then
   echo "app.tgz has an invalid nested app/ directory" >&2
   exit 1
 fi
+extract_tar_entry "${WORK}/app.tgz" ui/config >"${WORK}/ui-config"
+python3 - "${WORK}/ui-config" <<'PY'
+import json, sys
+with open(sys.argv[1], encoding="utf-8") as handle:
+    config = json.load(handle)
+entry = config.get(".url", {}).get("fn-codex.Application", {})
+if entry.get("port") != "3010":
+    raise SystemExit("packaged fn-codex desktop entry must declare port 3010")
+PY
 
 CHECKSUM="$(sed -n 's/^checksum[[:space:]]*=[[:space:]]*"\{0,1\}\([^"[:space:]]*\)"\{0,1\}[[:space:]]*$/\1/p' "${WORK}/manifest")"
 APP_MD5="$(md5 -q "${WORK}/app.tgz" 2>/dev/null || md5sum "${WORK}/app.tgz" | awk '{print $1}')"

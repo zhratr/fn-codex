@@ -6,6 +6,7 @@
       "icon": "images/icon_{0}.png",
       "protocol": "http",
       "type": "url",
+      "port": "3010",
       "url": "/",
       "allUsers": true,
       "control": {

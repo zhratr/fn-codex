@@ -15,6 +15,11 @@ for filename in sys.argv[1:]:
     with open(filename, encoding="utf-8") as handle:
         json.load(handle)
     print(f"valid json: {filename}")
+with open(sys.argv[3], encoding="utf-8") as handle:
+    config = json.load(handle)
+entry = config.get(".url", {}).get("fn-codex.Application", {})
+if entry.get("port") != "3010":
+    raise SystemExit("fn-codex desktop entry must declare port 3010")
 PY
 
 for script in "${SOURCE}/cmd/"*; do
