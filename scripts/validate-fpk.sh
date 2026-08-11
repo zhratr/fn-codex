@@ -17,10 +17,18 @@ for filename in sys.argv[1:]:
     print(f"valid json: {filename}")
 PY
 
-for script in "${SOURCE}/cmd/"* "${SOURCE}/wizard/"*; do
+for script in "${SOURCE}/cmd/"*; do
   [[ -f "${script}" ]] || continue
   bash -n "${script}"
 done
+
+python3 - "${SOURCE}/wizard/install" "${SOURCE}/wizard/upgrade" "${SOURCE}/wizard/uninstall" "${SOURCE}/wizard/config" <<'PY'
+import json, sys
+for filename in sys.argv[1:]:
+    with open(filename, encoding="utf-8") as handle:
+        json.load(handle)
+    print(f"valid json: {filename}")
+PY
 
 for field in appname version display_name desc maintainer source platform desktop_uidir desktop_applaunchname; do
   grep -Eq "^${field}=\"[^\"]+\"$" "${SOURCE}/manifest" || { echo "manifest field ${field} must be quoted" >&2; exit 1; }

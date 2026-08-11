@@ -1,5 +1,5 @@
 appname="fn-codex"
-version="0.1.2"
+version="0.1.3"
 display_name="fn-codex"
 display_name_zh="fn-codex 社区编码工作台"
 desc="Community browser coding-agent workspace for fnOS"
@@ -17,5 +17,5 @@ checkport="false"
 service_port="3010"
 protocol="http"
 desktop_uidir="ui"
-desktop_applaunchname="fn-codex"
+desktop_applaunchname="fn-codex.Application"
 ctl_stop=true

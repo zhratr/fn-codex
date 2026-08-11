@@ -232,7 +232,7 @@ async function handler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
   try {
     if (req.method === "GET" && url.pathname === "/api/state") {
-      return json(res, 200, { app: "fn-codex", version: "0.1.2", workspace: WORKSPACE, provider: providerConfig(), tasks: [...tasks.values()], diff: await gitDiff() });
+      return json(res, 200, { app: "fn-codex", version: "0.1.3", workspace: WORKSPACE, provider: providerConfig(), tasks: [...tasks.values()], diff: await gitDiff() });
     }
     if (req.method === "GET" && url.pathname === "/api/files") return json(res, 200, { path: url.searchParams.get("path") || ".", entries: await fileTree(url.searchParams.get("path") || "") });
     if (req.method === "GET" && url.pathname === "/api/file") {

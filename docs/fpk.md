@@ -21,16 +21,16 @@ The fallback `scripts/build-fpk.sh` builds a compressed `.fpk` with the same top
 ## Architecture
 
 ```sh
-PLATFORM=x86_64 VERSION=0.1.2 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
-PLATFORM=arm64 VERSION=0.1.2 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
-bash scripts/validate-fpk-package.sh dist/fn-codex-0.1.2-x86_64.fpk
+PLATFORM=x86_64 VERSION=0.1.3 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
+PLATFORM=arm64 VERSION=0.1.3 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
+bash scripts/validate-fpk-package.sh dist/fn-codex-0.1.3-x86_64.fpk
 ```
 
 `PLATFORM=x86_64` is the first-install priority for the target NAS. The release workflow builds both assets. Runtime binaries are architecture-specific; the JavaScript application and UI are shared.
 
 The fnOS manifest uses `platform="x86"` for the x86_64 package and `platform="arm"` for the ARM64 package; the separate `arch` field records the exact runtime architecture.
 
-The package-shape command above intentionally omits the runtime for fast local inspection. GitHub Actions builds each release asset with the matching official Linux Node runtime and runs the same archive validator with `REQUIRE_RUNTIME=1`.
+The package-shape command above intentionally omits the runtime for fast local inspection. The builder downloads the official fnpack 1.2.3 tool and GitHub Actions adds the matching official Linux Node runtime, then runs the same archive validator with `REQUIRE_RUNTIME=1`.
 
 ## Lifecycle and defaults
 
