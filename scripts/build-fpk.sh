@@ -26,8 +26,15 @@ mkdir -p "${STAGE}/project"
 # Build the actual fnpack project. fnpack validates desktop entry naming,
 # manifest compatibility, and writes the app.tgz checksum.
 cp -R "${ROOT_DIR}/fpk/." "${STAGE}/project/"
-sed -i.bak "s/^version=.*/version=\"${VERSION}\"/; s/^platform=.*/platform=\"${MANIFEST_PLATFORM}\"/; s/^arch=.*/arch=\"${PLATFORM}\"/" "${STAGE}/project/manifest"
+sed -E -i.bak \
+  -e "s/^version[[:space:]]*=.*/version=\"${VERSION}\"/" \
+  -e "s/^platform[[:space:]]*=.*/platform=\"${MANIFEST_PLATFORM}\"/" \
+  -e "s/^arch[[:space:]]*=.*/arch=\"${PLATFORM}\"/" \
+  "${STAGE}/project/manifest"
 rm -f "${STAGE}/project/manifest.bak"
+grep -Eq "^version=\"${VERSION}\"$" "${STAGE}/project/manifest" || { echo "failed to set manifest version=${VERSION}" >&2; exit 1; }
+grep -Eq "^platform=\"${MANIFEST_PLATFORM}\"$" "${STAGE}/project/manifest" || { echo "failed to set manifest platform=${MANIFEST_PLATFORM}" >&2; exit 1; }
+grep -Eq "^arch=\"${PLATFORM}\"$" "${STAGE}/project/manifest" || { echo "failed to set manifest arch=${PLATFORM}" >&2; exit 1; }
 
 if [[ "${SKIP_RUNTIME}" == "1" ]]; then
   echo "warning: SKIP_RUNTIME=1; this is a package-shape preview, not a self-contained FPK" >&2

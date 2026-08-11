@@ -74,6 +74,10 @@ grep -Fq '/usr/local/apps/@appcenter/${APP_NAME}' "${WORK}/cmd-main"
 grep -Fq 'APPDEST="${TRIM_APPDEST:-/var/apps/${APP_NAME}}"' "${WORK}/cmd-main"
 grep -Fq 'PKGHOME="${TRIM_PKGHOME:-${TRIM_APPHOME:-/usr/local/apps/@apphome/${APP_NAME}}}"' "${WORK}/cmd-main"
 grep -Fq 'PKGVAR="${TRIM_PKGVAR:-${TRIM_APPDATA:-/usr/local/apps/@appdata/${APP_NAME}}}"' "${WORK}/cmd-main"
+grep -Fq 'LOG_FILE="${PKGVAR}/${APP_NAME}.log"' "${WORK}/cmd-main"
+grep -Fq 'if ! : >>"${LOG_FILE}" 2>/dev/null; then' "${WORK}/cmd-main"
+grep -Fq 'LOG_FILE="/dev/null"' "${WORK}/cmd-main"
+grep -Fq '>>"${LOG_FILE}" 2>/dev/null || true' "${WORK}/cmd-main"
 extract_tar_entry "${PACKAGE}" config/resource >"${WORK}/resource"
 cmp -s <(printf '%s' "${EXPECTED_RESOURCE}") "${WORK}/resource" || { echo "config/resource must match the NAS-validated data-share definition" >&2; exit 1; }
 

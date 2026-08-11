@@ -24,18 +24,15 @@ APP_HOME="${PKGHOME}"
 APP_DATA="${PKGVAR}"
 VAR_DIR="${PKGVAR}"
 PID_FILE="${VAR_DIR}/${APP_NAME}.pid"
-if [ -n "${TRIM_PKGLOG:-}" ]; then
-  LOG_FILE="${TRIM_PKGLOG}"
-elif [ -d "/var/log/apps" ]; then
-  LOG_FILE="/var/log/apps/${APP_NAME}.log"
-else
-  LOG_FILE="${VAR_DIR}/${APP_NAME}.log"
-fi
+LOG_FILE="${PKGVAR}/${APP_NAME}.log"
 
 mkdir -p "${VAR_DIR}"
+if ! : >>"${LOG_FILE}" 2>/dev/null; then
+  LOG_FILE="/dev/null"
+fi
 
 log_lifecycle() {
-  printf '%s fn-codex lifecycle: %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >>"${LOG_FILE}"
+  printf '%s fn-codex lifecycle: %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >>"${LOG_FILE}" 2>/dev/null || true
 }
 
 is_running() {
