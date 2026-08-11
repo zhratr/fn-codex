@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="${VERSION:-0.1.3}"
+VERSION="${VERSION:-0.1.4}"
 PLATFORM="${PLATFORM:-x86_64}"
 OUT_DIR="${OUT_DIR:-${ROOT_DIR}/dist}"
 NODE_VERSION="${NODE_VERSION:-22.14.0}"

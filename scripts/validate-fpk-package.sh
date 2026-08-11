@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PACKAGE="${1:?usage: PLATFORM=x86_64 VERSION=0.1.3 REQUIRE_RUNTIME=0 $0 package.fpk}"
+PACKAGE="${1:?usage: PLATFORM=x86_64 VERSION=0.1.4 REQUIRE_RUNTIME=0 $0 package.fpk}"
 PLATFORM="${PLATFORM:-x86_64}"
 VERSION="${VERSION:-}"
 REQUIRE_RUNTIME="${REQUIRE_RUNTIME:-0}"
@@ -17,18 +17,45 @@ WORK="$(mktemp -d "${TMPDIR:-/tmp}/fn-codex-validate.XXXXXX")"
 trap 'rm -rf "${WORK}"' EXIT
 
 normalize_tar_list() { sed 's#^\./##; s#/$##' ; }
+
+tar_entry() {
+  local archive="$1"
+  local wanted="$2"
+  tar -tzf "${archive}" | awk -v wanted="${wanted}" '
+    {
+      entry = $0
+      normalized = entry
+      sub(/^\.\//, "", normalized)
+      sub(/\/$/, "", normalized)
+      if (normalized == wanted) {
+        print entry
+        exit
+      }
+    }
+  '
+}
+
+extract_tar_entry() {
+  local archive="$1"
+  local wanted="$2"
+  local entry
+  entry="$(tar_entry "${archive}" "${wanted}")"
+  [[ -n "${entry}" ]] || { echo "missing tar entry: ${wanted}" >&2; exit 1; }
+  tar -xOzf "${archive}" "${entry}"
+}
+
 tar -tzf "${PACKAGE}" | normalize_tar_list >"${WORK}/outer.list"
 for required in manifest app.tgz cmd/main config/privilege config/resource wizard/install ICON.PNG ICON_256.PNG; do
   grep -qxF "${required}" "${WORK}/outer.list" || { echo "missing outer entry: ${required}" >&2; exit 1; }
 done
 
-tar -xOzf "${PACKAGE}" ./manifest >"${WORK}/manifest"
+extract_tar_entry "${PACKAGE}" manifest >"${WORK}/manifest"
 grep -Eq '^appname[[:space:]]*=[[:space:]]*"?fn-codex"?[[:space:]]*$' "${WORK}/manifest"
 grep -Eq "^version[[:space:]]*=[[:space:]]*\"?${VERSION:-[0-9.]+}\"?[[:space:]]*$" "${WORK}/manifest"
 grep -Eq "^platform[[:space:]]*=[[:space:]]*\"?${MANIFEST_PLATFORM}\"?[[:space:]]*$" "${WORK}/manifest"
 grep -Eq "^arch[[:space:]]*=[[:space:]]*\"?${PLATFORM}\"?[[:space:]]*$" "${WORK}/manifest"
 
-tar -xOzf "${PACKAGE}" ./app.tgz >"${WORK}/app.tgz"
+extract_tar_entry "${PACKAGE}" app.tgz >"${WORK}/app.tgz"
 tar -tzf "${WORK}/app.tgz" | normalize_tar_list >"${WORK}/app.list"
 for required in server/server.js ui/config ui/index.html ui/app.js ui/styles.css; do
   grep -qxF "${required}" "${WORK}/app.list" || { echo "missing app.tgz entry: ${required}" >&2; exit 1; }
@@ -45,7 +72,7 @@ APP_MD5="$(md5 -q "${WORK}/app.tgz" 2>/dev/null || md5sum "${WORK}/app.tgz" | aw
 
 if [[ "${REQUIRE_RUNTIME}" == "1" ]]; then
   grep -qxF "runtime/node" "${WORK}/app.list" || { echo "missing self-contained runtime" >&2; exit 1; }
-  RUNTIME_INFO="$(tar -xOzf "${WORK}/app.tgz" ./runtime/node | file -b - 2>/dev/null || true)"
+  RUNTIME_INFO="$(extract_tar_entry "${WORK}/app.tgz" runtime/node | file -b - 2>/dev/null || true)"
   case "${PLATFORM}" in
     x86_64) grep -Eq 'ELF 64-bit.*(x86-64|Advanced Micro Devices X86-64)' <<<"${RUNTIME_INFO}" || { echo "runtime architecture mismatch: ${RUNTIME_INFO}" >&2; exit 1; } ;;
     arm64) grep -Eq 'ELF 64-bit.*(ARM aarch64|AArch64)' <<<"${RUNTIME_INFO}" || { echo "runtime architecture mismatch: ${RUNTIME_INFO}" >&2; exit 1; } ;;
