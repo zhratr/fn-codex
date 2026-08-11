@@ -69,6 +69,11 @@ grep -Fq '/proc/${pid}/cmdline' "${WORK}/cmd-main"
 grep -Fq 'rm -f "${PID_FILE}"' "${WORK}/cmd-main"
 grep -Fq 'ACTION="${1:-start}"' "${WORK}/cmd-main"
 grep -Fq 'fn-codex lifecycle:' "${WORK}/cmd-main"
+grep -Fq 'SCRIPT_ROOT="$(CDPATH= cd -- "${SCRIPT_DIR}/.." && pwd -P)"' "${WORK}/cmd-main"
+grep -Fq '/usr/local/apps/@appcenter/${APP_NAME}' "${WORK}/cmd-main"
+grep -Fq 'APPDEST="${TRIM_APPDEST:-/var/apps/${APP_NAME}}"' "${WORK}/cmd-main"
+grep -Fq 'PKGHOME="${TRIM_PKGHOME:-${TRIM_APPHOME:-/usr/local/apps/@apphome/${APP_NAME}}}"' "${WORK}/cmd-main"
+grep -Fq 'PKGVAR="${TRIM_PKGVAR:-${TRIM_APPDATA:-/usr/local/apps/@appdata/${APP_NAME}}}"' "${WORK}/cmd-main"
 extract_tar_entry "${PACKAGE}" config/resource >"${WORK}/resource"
 cmp -s <(printf '%s' "${EXPECTED_RESOURCE}") "${WORK}/resource" || { echo "config/resource must match the NAS-validated data-share definition" >&2; exit 1; }
 

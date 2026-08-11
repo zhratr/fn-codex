@@ -1,14 +1,36 @@
 #!/bin/sh
 set -eu
 
-APPDEST="${TRIM_APPDEST:?TRIM_APPDEST is required}"
-VAR_DIR="${TRIM_PKGVAR:-${APPDEST}/var}"
-PID_FILE="${VAR_DIR}/fn-codex.pid"
-LOG_FILE="${VAR_DIR}/fn-codex.log"
-CONTENT_ROOT="${APPDEST}"
-if [ -d "${APPDEST}/target" ]; then CONTENT_ROOT="${APPDEST}/target"; fi
-NODE_BIN="${CONTENT_ROOT}/runtime/node"
-SERVER="${CONTENT_ROOT}/server/server.js"
+APP_NAME="fn-codex"
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)"
+SCRIPT_ROOT="$(CDPATH= cd -- "${SCRIPT_DIR}/.." && pwd -P)"
+APPDEST="${TRIM_APPDEST:-/var/apps/${APP_NAME}}"
+PKGHOME="${TRIM_PKGHOME:-${TRIM_APPHOME:-/usr/local/apps/@apphome/${APP_NAME}}}"
+PKGVAR="${TRIM_PKGVAR:-${TRIM_APPDATA:-/usr/local/apps/@appdata/${APP_NAME}}}"
+
+CONTENT_ROOT=""
+for candidate in "${TRIM_APPDEST:-}" "${APPDEST}" "${APPDEST}/target" "${SCRIPT_ROOT}" "${SCRIPT_ROOT}/target" \
+  "/usr/local/apps/@appcenter/${APP_NAME}" "/usr/local/apps/@appcenter/${APP_NAME}/target"; do
+  [ -n "${candidate}" ] || continue
+  if [ -x "${candidate}/runtime/node" ] && [ -f "${candidate}/server/server.js" ]; then
+    CONTENT_ROOT="${candidate}"
+    break
+  fi
+done
+NODE_BIN="${CONTENT_ROOT:-${APPDEST}}/runtime/node"
+SERVER="${CONTENT_ROOT:-${APPDEST}}/server/server.js"
+
+APP_HOME="${PKGHOME}"
+APP_DATA="${PKGVAR}"
+VAR_DIR="${PKGVAR}"
+PID_FILE="${VAR_DIR}/${APP_NAME}.pid"
+if [ -n "${TRIM_PKGLOG:-}" ]; then
+  LOG_FILE="${TRIM_PKGLOG}"
+elif [ -d "/var/log/apps" ]; then
+  LOG_FILE="/var/log/apps/${APP_NAME}.log"
+else
+  LOG_FILE="${VAR_DIR}/${APP_NAME}.log"
+fi
 
 mkdir -p "${VAR_DIR}"
 
@@ -54,8 +76,8 @@ start_service() {
   fi
   export FN_CODEX_BIND="${FN_CODEX_BIND:-0.0.0.0}"
   export FN_CODEX_PORT="${FN_CODEX_PORT:-3010}"
-  export FN_CODEX_WORKSPACE="${FN_CODEX_WORKSPACE:-${TRIM_APPHOME:-${APPDEST}/home}/workspace}"
-  export FN_CODEX_STATE_DIR="${FN_CODEX_STATE_DIR:-${TRIM_APPDATA:-${APPDEST}/var}/state}"
+  export FN_CODEX_WORKSPACE="${FN_CODEX_WORKSPACE:-${APP_HOME}/workspace}"
+  export FN_CODEX_STATE_DIR="${FN_CODEX_STATE_DIR:-${APP_DATA}/state}"
   export FN_CODEX_ALLOW_COMMANDS="${FN_CODEX_ALLOW_COMMANDS:-0}"
   export CODEX_API_URL="${CODEX_API_URL:-}"
   export CODEX_API_KEY="${CODEX_API_KEY:-}"

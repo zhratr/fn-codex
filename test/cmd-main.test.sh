@@ -21,21 +21,28 @@ cleanup() {
 trap cleanup EXIT
 
 mkdir -p "${APPDEST}/runtime" "${APPDEST}/server" "${VAR_DIR}"
+mkdir -p "${APPDEST}/cmd"
+cp "${ROOT_DIR}/fpk/cmd/main" "${APPDEST}/cmd/main"
+chmod +x "${APPDEST}/cmd/main"
 printf '%s\n' '#!/bin/sh' 'while :; do sleep 60; done' >"${APPDEST}/runtime/node"
 chmod +x "${APPDEST}/runtime/node"
 touch "${APPDEST}/server/server.js"
+
+run_main() {
+  env -i PATH="${PATH}" TRIM_PKGHOME="${APPDEST}/home" TRIM_PKGVAR="${VAR_DIR}" "${APPDEST}/cmd/main" "$@"
+}
 
 sleep 300 &
 STALE_PID="$!"
 printf '%s\n' "${STALE_PID}" >"${PID_FILE}"
 
-TRIM_APPDEST="${APPDEST}" TRIM_PKGVAR="${VAR_DIR}" "${ROOT_DIR}/fpk/cmd/main"
+run_main
 CURRENT_PID="$(cat "${PID_FILE}")"
 [[ "${CURRENT_PID}" != "${STALE_PID}" ]] || { echo "stale PID was accepted" >&2; exit 1; }
 kill -0 "${CURRENT_PID}"
 grep -Fq 'start requested:' "${VAR_DIR}/fn-codex.log"
 grep -Fq "start launched pid=${CURRENT_PID}" "${VAR_DIR}/fn-codex.log"
-TRIM_APPDEST="${APPDEST}" TRIM_PKGVAR="${VAR_DIR}" "${ROOT_DIR}/fpk/cmd/main" status | grep -Eq '^running \([0-9]+\)$'
-TRIM_APPDEST="${APPDEST}" TRIM_PKGVAR="${VAR_DIR}" "${ROOT_DIR}/fpk/cmd/main" stop
+run_main status | grep -Eq '^running \([0-9]+\)$'
+run_main stop
 [[ ! -e "${PID_FILE}" ]]
 echo "cmd/main stale-PID checks passed"
