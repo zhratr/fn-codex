@@ -12,8 +12,29 @@ SERVER="${CONTENT_ROOT}/server/server.js"
 
 mkdir -p "${VAR_DIR}"
 
+read_pid_file() {
+  [ -s "${PID_FILE}" ] || return 1
+  pid="$(cat "${PID_FILE}" 2>/dev/null || true)"
+  case "${pid}" in
+    ''|*[!0-9]*) return 1 ;;
+  esac
+  printf '%s\n' "${pid}"
+}
+
 is_running() {
-  [ -s "${PID_FILE}" ] && kill -0 "$(cat "${PID_FILE}")" 2>/dev/null
+  pid="$(read_pid_file)" || return 1
+  if ! kill -0 "${pid}" 2>/dev/null || [ ! -r "/proc/${pid}/cmdline" ]; then
+    rm -f "${PID_FILE}"
+    return 1
+  fi
+
+  cmdline="$(tr '\000' ' ' < "/proc/${pid}/cmdline" 2>/dev/null || true)"
+  case "${cmdline}" in
+    *"${SERVER}"*) return 0 ;;
+  esac
+
+  rm -f "${PID_FILE}"
+  return 1
 }
 
 start_service() {

@@ -37,6 +37,8 @@ grep -Eq '^os_min_version="1\.2\.0"$' "${SOURCE}/manifest"
 [[ "$(tr -d '\r' < "${SOURCE}/cmd/install_init")" == $'#!/bin/sh\nexit 0' ]] || { echo "install_init must be an environment-independent no-op" >&2; exit 1; }
 grep -Fq 'export FN_CODEX_BIND="${FN_CODEX_BIND:-0.0.0.0}"' "${SOURCE}/cmd/main"
 grep -Fq 'const BIND = process.env.FN_CODEX_BIND || "0.0.0.0";' "${SOURCE}/app/server/server.js"
+grep -Fq '/proc/${pid}/cmdline' "${SOURCE}/cmd/main"
+grep -Fq 'rm -f "${PID_FILE}"' "${SOURCE}/cmd/main"
 file "${SOURCE}/ICON.PNG" "${SOURCE}/ICON_256.PNG"
 if command -v fnpack >/dev/null 2>&1; then
   echo "fnpack detected: $(command -v fnpack)"

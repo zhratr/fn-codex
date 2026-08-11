@@ -64,6 +64,9 @@ grep -Eq "^arch[[:space:]]*=[[:space:]]*\"?${PLATFORM}\"?[[:space:]]*$" "${WORK}
 grep -Eq '^os_min_version[[:space:]]*=[[:space:]]*"?1\.2\.0"?[[:space:]]*$' "${WORK}/manifest"
 extract_tar_entry "${PACKAGE}" cmd/install_init >"${WORK}/install_init"
 [[ "$(tr -d '\r' < "${WORK}/install_init")" == $'#!/bin/sh\nexit 0' ]] || { echo "install_init must be an environment-independent no-op" >&2; exit 1; }
+extract_tar_entry "${PACKAGE}" cmd/main >"${WORK}/cmd-main"
+grep -Fq '/proc/${pid}/cmdline' "${WORK}/cmd-main"
+grep -Fq 'rm -f "${PID_FILE}"' "${WORK}/cmd-main"
 extract_tar_entry "${PACKAGE}" config/resource >"${WORK}/resource"
 cmp -s <(printf '%s' "${EXPECTED_RESOURCE}") "${WORK}/resource" || { echo "config/resource must match the NAS-validated data-share definition" >&2; exit 1; }
 
