@@ -23,8 +23,8 @@ STAGE="$(mktemp -d "${TMPDIR:-/tmp}/fn-codex-fpk.XXXXXX")"
 trap 'rm -rf "${STAGE}"' EXIT
 mkdir -p "${STAGE}/project"
 
-# Build the actual fnpack project. fnpack validates wizard JSON, desktop
-# entry naming, manifest compatibility, and writes the app.tgz checksum.
+# Build the actual fnpack project. fnpack validates desktop entry naming,
+# manifest compatibility, and writes the app.tgz checksum.
 cp -R "${ROOT_DIR}/fpk/." "${STAGE}/project/"
 sed -i.bak "s/^version=.*/version=\"${VERSION}\"/; s/^platform=.*/platform=\"${MANIFEST_PLATFORM}\"/; s/^arch=.*/arch=\"${PLATFORM}\"/" "${STAGE}/project/manifest"
 rm -f "${STAGE}/project/manifest.bak"
