@@ -9,7 +9,7 @@ const { promisify } = require("node:util");
 
 const execFileAsync = promisify(execFile);
 const PORT = Number.parseInt(process.env.FN_CODEX_PORT || process.env.PORT || "3010", 10);
-const BIND = process.env.FN_CODEX_BIND || "127.0.0.1";
+const BIND = process.env.FN_CODEX_BIND || "0.0.0.0";
 const APP_ROOT = path.resolve(__dirname, "..");
 const CONFIGURED_WORKSPACE = path.resolve(process.env.FN_CODEX_WORKSPACE || path.join(process.env.TRIM_APPHOME || APP_ROOT, "workspace"));
 let WORKSPACE = CONFIGURED_WORKSPACE;
@@ -232,7 +232,7 @@ async function handler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
   try {
     if (req.method === "GET" && url.pathname === "/api/state") {
-      return json(res, 200, { app: "fn-codex", version: "0.1.7", workspace: WORKSPACE, provider: providerConfig(), tasks: [...tasks.values()], diff: await gitDiff() });
+      return json(res, 200, { app: "fn-codex", version: "0.1.8", workspace: WORKSPACE, provider: providerConfig(), tasks: [...tasks.values()], diff: await gitDiff() });
     }
     if (req.method === "GET" && url.pathname === "/api/files") return json(res, 200, { path: url.searchParams.get("path") || ".", entries: await fileTree(url.searchParams.get("path") || "") });
     if (req.method === "GET" && url.pathname === "/api/file") {

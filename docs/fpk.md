@@ -21,9 +21,9 @@ The fallback `scripts/build-fpk.sh` builds a compressed `.fpk` with the same top
 ## Architecture
 
 ```sh
-PLATFORM=x86_64 VERSION=0.1.7 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
-PLATFORM=arm64 VERSION=0.1.7 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
-bash scripts/validate-fpk-package.sh dist/fn-codex-0.1.7-x86_64.fpk
+PLATFORM=x86_64 VERSION=0.1.8 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
+PLATFORM=arm64 VERSION=0.1.8 SKIP_RUNTIME=1 bash scripts/build-fpk.sh
+bash scripts/validate-fpk-package.sh dist/fn-codex-0.1.8-x86_64.fpk
 ```
 
 `PLATFORM=x86_64` is the first-install priority for the target NAS. The release workflow builds both assets. Runtime binaries are architecture-specific; the JavaScript application and UI are shared.
@@ -35,7 +35,7 @@ The package-shape command above intentionally omits the runtime for fast local i
 ## Lifecycle and defaults
 
 - `cmd/main` starts and stops the service as the fnOS package user.
-- The default bind is `127.0.0.1:3010`.
+- The default bind is `0.0.0.0:3010` for trusted-LAN access. The service has no built-in authentication; never expose it directly to the Internet.
 - The default workspace is the app's persistent home directory under `workspace/`.
 - File paths are resolved beneath that workspace; `..`, absolute paths, and symlink escapes are rejected.
 - Commands are disabled by default and, when explicitly enabled, use a small non-shell allowlist.

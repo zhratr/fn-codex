@@ -1,5 +1,5 @@
 appname="fn-codex"
-version="0.1.7"
+version="0.1.8"
 display_name="fn-codex"
 display_name_zh="fn-codex 社区编码工作台"
 desc="Community browser coding-agent workspace for fnOS"

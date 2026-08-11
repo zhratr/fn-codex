@@ -26,14 +26,14 @@ jobs:
       - name: Build self-contained FPK
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          if [ -z "${VERSION}" ] || [ "${VERSION}" = "${GITHUB_REF_NAME}" ]; then VERSION=0.1.7; fi
+          if [ -z "${VERSION}" ] || [ "${VERSION}" = "${GITHUB_REF_NAME}" ]; then VERSION=0.1.8; fi
           PLATFORM="${{ matrix.platform }}" VERSION="${VERSION}" bash scripts/build-fpk.sh
       - name: Validate package source
         run: bash scripts/validate-fpk.sh --source fpk
       - name: Validate archive layout and runtime architecture
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          if [ -z "${VERSION}" ] || [ "${VERSION}" = "${GITHUB_REF_NAME}" ]; then VERSION=0.1.7; fi
+          if [ -z "${VERSION}" ] || [ "${VERSION}" = "${GITHUB_REF_NAME}" ]; then VERSION=0.1.8; fi
           PLATFORM="${{ matrix.platform }}" VERSION="${VERSION}" REQUIRE_RUNTIME=1 bash scripts/validate-fpk-package.sh "dist/fn-codex-${VERSION}-${{ matrix.platform }}.fpk"
       - uses: actions/upload-artifact@v4
         with:

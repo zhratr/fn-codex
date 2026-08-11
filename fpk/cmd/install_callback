@@ -1,5 +1,5 @@
 #!/bin/sh
 set -eu
-echo "fn-codex installed. Open the fnOS app entry or http://127.0.0.1:3010/ from the NAS."
+echo "fn-codex installed. Open the fnOS app entry or http://<NAS-LAN-IP>:3010/ from a trusted LAN."
 echo "Workspace: ${TRIM_APPHOME:-${TRIM_APPDEST}/home}/workspace"
 exit 0

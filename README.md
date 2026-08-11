@@ -18,9 +18,9 @@
 
 1. Download `fn-codex-<version>-x86_64.fpk` for an x86_64 NAS, or the ARM64 asset for an ARM64 NAS.
 2. In fnOS, open App Center → Manual install and upload the `.fpk` file.
-3. Start the app and open its local app entry. The default service is `127.0.0.1:3010`.
+3. Start the app, then open its fnOS app entry or `http://<NAS-LAN-IP>:3010/` from a trusted LAN. The default service listens on all NAS interfaces at port 3010.
 
-The first release is packaged for installation from GitHub Release. Real-hardware installation is not claimed here until a target NAS test is recorded.
+The package has been tested to install and start on one Harn-MEmini / Intel N150 / fnOS 1.2.0401 target. LAN reachability of each new release still requires target-NAS verification.
 
 ## Configure an agent provider
 
@@ -36,7 +36,7 @@ Without a provider, the UI remains usable as a local workspace preview and clear
 
 ## Security defaults
 
-The service binds to loopback, runs as the package user, and limits file operations to the explicitly configured workspace. Do not expose it directly to the Internet. If you change `FN_CODEX_BIND` to a LAN address, use fnOS access controls or a separately managed reverse proxy. Read [SECURITY.md](SECURITY.md) before enabling command execution.
+The service binds to `0.0.0.0:3010` by default so it is reachable on the LAN. It currently has no built-in authentication. Keep it on a trusted LAN, do not expose the port to the Internet, and use fnOS firewall/access controls or an authenticated reverse proxy if any untrusted device can reach it. File operations remain limited to the explicitly configured workspace. Read [SECURITY.md](SECURITY.md) before enabling command execution.
 
 ## Development
 

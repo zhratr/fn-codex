@@ -14,13 +14,14 @@ async function main() {
   await fsp.writeFile(path.join(workspace, "hello.txt"), "hello fn-codex\n");
   const child = execFile("node", [path.join(root, "app/server/server.js")], {
     cwd: root,
-    env: { ...process.env, FN_CODEX_PORT: String(port), FN_CODEX_BIND: "127.0.0.1", FN_CODEX_WORKSPACE: workspace, FN_CODEX_STATE_DIR: path.join(workspace, ".state"), FN_CODEX_ALLOW_COMMANDS: "1" },
+    env: { ...process.env, FN_CODEX_PORT: String(port), FN_CODEX_WORKSPACE: workspace, FN_CODEX_STATE_DIR: path.join(workspace, ".state"), FN_CODEX_ALLOW_COMMANDS: "1" },
   });
   let output = "";
   child.stdout.on("data", (chunk) => { output += chunk; });
   child.stderr.on("data", (chunk) => { output += chunk; });
   for (let attempt = 0; attempt < 40 && !output.includes("listening"); attempt += 1) await new Promise((resolve) => setTimeout(resolve, 50));
   assert.match(output, /listening/);
+  assert.match(output, /http:\/\/0\.0\.0\.0:/);
   const base = `http://127.0.0.1:${port}`;
   const get = async (url) => (await fetch(`${base}${url}`)).json();
   const state = await get("/api/state");

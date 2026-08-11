@@ -22,7 +22,7 @@ start_service() {
     echo "fn-codex runtime is incomplete: ${NODE_BIN}" >&2
     exit 1
   fi
-  export FN_CODEX_BIND="${FN_CODEX_BIND:-127.0.0.1}"
+  export FN_CODEX_BIND="${FN_CODEX_BIND:-0.0.0.0}"
   export FN_CODEX_PORT="${FN_CODEX_PORT:-3010}"
   export FN_CODEX_WORKSPACE="${FN_CODEX_WORKSPACE:-${TRIM_APPHOME:-${APPDEST}/home}/workspace}"
   export FN_CODEX_STATE_DIR="${FN_CODEX_STATE_DIR:-${TRIM_APPDATA:-${APPDEST}/var}/state}"

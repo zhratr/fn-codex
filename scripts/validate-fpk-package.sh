@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PACKAGE="${1:?usage: PLATFORM=x86_64 VERSION=0.1.7 REQUIRE_RUNTIME=0 $0 package.fpk}"
+PACKAGE="${1:?usage: PLATFORM=x86_64 VERSION=0.1.8 REQUIRE_RUNTIME=0 $0 package.fpk}"
 PLATFORM="${PLATFORM:-x86_64}"
 VERSION="${VERSION:-}"
 REQUIRE_RUNTIME="${REQUIRE_RUNTIME:-0}"
