@@ -26,7 +26,7 @@ for field in appname version display_name desc maintainer source platform deskto
   grep -Eq "^${field}=\"[^\"]+\"$" "${SOURCE}/manifest" || { echo "manifest field ${field} must be quoted" >&2; exit 1; }
 done
 grep -Eq '^appname="fn-codex"$' "${SOURCE}/manifest"
-grep -Eq '^platform="(x86_64|arm64|all)"$' "${SOURCE}/manifest"
+grep -Eq '^platform="(x86|arm|all)"$' "${SOURCE}/manifest"
 grep -Eq '^arch="(x86_64|arm64)"$' "${SOURCE}/manifest"
 file "${SOURCE}/ICON.PNG" "${SOURCE}/ICON_256.PNG"
 if command -v fnpack >/dev/null 2>&1; then
