@@ -78,6 +78,10 @@ grep -Fq 'LOG_FILE="${PKGVAR}/${APP_NAME}.log"' "${WORK}/cmd-main"
 grep -Fq 'if ! : >>"${LOG_FILE}" 2>/dev/null; then' "${WORK}/cmd-main"
 grep -Fq 'LOG_FILE="/dev/null"' "${WORK}/cmd-main"
 grep -Fq '>>"${LOG_FILE}" 2>/dev/null || true' "${WORK}/cmd-main"
+grep -Fq 'echo "running ($(cat "${PID_FILE}"))"' "${WORK}/cmd-main"
+grep -Fq 'echo "stopped"' "${WORK}/cmd-main"
+grep -Fq '      exit 0' "${WORK}/cmd-main"
+grep -Fq '      exit 3' "${WORK}/cmd-main"
 extract_tar_entry "${PACKAGE}" config/resource >"${WORK}/resource"
 cmp -s <(printf '%s' "${EXPECTED_RESOURCE}") "${WORK}/resource" || { echo "config/resource must match the NAS-validated data-share definition" >&2; exit 1; }
 

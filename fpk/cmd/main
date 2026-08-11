@@ -104,7 +104,15 @@ case "${ACTION}" in
   start) start_service ;;
   stop) stop_service ;;
   restart) stop_service; start_service ;;
-  status) if is_running; then echo "running ($(cat "${PID_FILE}"))"; else echo "stopped"; fi ;;
+  status)
+    if is_running; then
+      echo "running ($(cat "${PID_FILE}"))"
+      exit 0
+    else
+      echo "stopped"
+      exit 3
+    fi
+    ;;
   log) touch "${LOG_FILE}"; tail -n 100 "${LOG_FILE}" ;;
   *) echo "usage: $0 {start|stop|restart|status|log}" >&2; exit 2 ;;
 esac

@@ -45,6 +45,10 @@ grep -Fq "start launched pid=${CURRENT_PID}" "${VAR_DIR}/fn-codex.log"
 run_main status | grep -Eq '^running \([0-9]+\)$'
 run_main stop
 [[ ! -e "${PID_FILE}" ]]
+STATUS_CODE=0
+STATUS_OUTPUT="$(run_main status 2>&1)" || STATUS_CODE=$?
+[[ "${STATUS_CODE}" -eq 3 ]]
+[[ "${STATUS_OUTPUT}" == "stopped" ]]
 
 rm -f "${VAR_DIR}/fn-codex.log"
 mkdir "${VAR_DIR}/fn-codex.log"
@@ -54,4 +58,8 @@ kill -0 "${FALLBACK_PID}"
 run_main status | grep -Eq '^running \([0-9]+\)$'
 run_main stop
 [[ -d "${VAR_DIR}/fn-codex.log" ]]
+STATUS_CODE=0
+STATUS_OUTPUT="$(run_main status 2>&1)" || STATUS_CODE=$?
+[[ "${STATUS_CODE}" -eq 3 ]]
+[[ "${STATUS_OUTPUT}" == "stopped" ]]
 echo "cmd/main stale-PID checks passed"
