@@ -12,18 +12,22 @@ SERVER="${CONTENT_ROOT}/server/server.js"
 
 mkdir -p "${VAR_DIR}"
 
-read_pid_file() {
-  [ -s "${PID_FILE}" ] || return 1
-  pid="$(cat "${PID_FILE}" 2>/dev/null || true)"
-  case "${pid}" in
-    ''|*[!0-9]*) return 1 ;;
-  esac
-  printf '%s\n' "${pid}"
+log_lifecycle() {
+  printf '%s fn-codex lifecycle: %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >>"${LOG_FILE}"
 }
 
 is_running() {
-  pid="$(read_pid_file)" || return 1
+  [ -s "${PID_FILE}" ] || return 1
+  pid="$(cat "${PID_FILE}" 2>/dev/null || true)"
+  case "${pid}" in
+    ''|*[!0-9]*)
+      log_lifecycle "removed invalid stale PID file"
+      rm -f "${PID_FILE}"
+      return 1
+      ;;
+  esac
   if ! kill -0 "${pid}" 2>/dev/null || [ ! -r "/proc/${pid}/cmdline" ]; then
+    log_lifecycle "removed stale PID ${pid}: process or proc entry unavailable"
     rm -f "${PID_FILE}"
     return 1
   fi
@@ -33,13 +37,18 @@ is_running() {
     *"${SERVER}"*) return 0 ;;
   esac
 
+  log_lifecycle "removed stale PID ${pid}: command does not match ${SERVER}"
   rm -f "${PID_FILE}"
   return 1
 }
 
 start_service() {
-  if is_running; then exit 0; fi
+  if is_running; then
+    log_lifecycle "start skipped: already running pid=$(cat "${PID_FILE}")"
+    return 0
+  fi
   if [ ! -x "${NODE_BIN}" ] || [ ! -f "${SERVER}" ]; then
+    log_lifecycle "start failed: runtime=${NODE_BIN} server=${SERVER}"
     echo "fn-codex runtime is incomplete: ${NODE_BIN}" >&2
     exit 1
   fi
@@ -51,19 +60,28 @@ start_service() {
   export CODEX_API_URL="${CODEX_API_URL:-}"
   export CODEX_API_KEY="${CODEX_API_KEY:-}"
   export CODEX_MODEL="${CODEX_MODEL:-}"
+  log_lifecycle "start requested: bind=${FN_CODEX_BIND} port=${FN_CODEX_PORT} server=${SERVER}"
   nohup "${NODE_BIN}" "${SERVER}" >>"${LOG_FILE}" 2>&1 &
-  echo "$!" >"${PID_FILE}"
+  pid="$!"
+  echo "${pid}" >"${PID_FILE}"
+  log_lifecycle "start launched pid=${pid}"
 }
 
 stop_service() {
   if is_running; then
-    kill "$(cat "${PID_FILE}")" 2>/dev/null || true
+    pid="$(cat "${PID_FILE}")"
+    log_lifecycle "stop requested pid=${pid}"
+    kill "${pid}" 2>/dev/null || true
     for _ in 1 2 3 4 5; do is_running || break; sleep 1; done
+    log_lifecycle "stop complete"
+  else
+    log_lifecycle "stop requested: already stopped"
   fi
   rm -f "${PID_FILE}"
 }
 
-case "${1:-status}" in
+ACTION="${1:-start}"
+case "${ACTION}" in
   start) start_service ;;
   stop) stop_service ;;
   restart) stop_service; start_service ;;

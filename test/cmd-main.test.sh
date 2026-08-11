@@ -29,10 +29,12 @@ sleep 300 &
 STALE_PID="$!"
 printf '%s\n' "${STALE_PID}" >"${PID_FILE}"
 
-TRIM_APPDEST="${APPDEST}" TRIM_PKGVAR="${VAR_DIR}" "${ROOT_DIR}/fpk/cmd/main" start
+TRIM_APPDEST="${APPDEST}" TRIM_PKGVAR="${VAR_DIR}" "${ROOT_DIR}/fpk/cmd/main"
 CURRENT_PID="$(cat "${PID_FILE}")"
 [[ "${CURRENT_PID}" != "${STALE_PID}" ]] || { echo "stale PID was accepted" >&2; exit 1; }
 kill -0 "${CURRENT_PID}"
+grep -Fq 'start requested:' "${VAR_DIR}/fn-codex.log"
+grep -Fq "start launched pid=${CURRENT_PID}" "${VAR_DIR}/fn-codex.log"
 TRIM_APPDEST="${APPDEST}" TRIM_PKGVAR="${VAR_DIR}" "${ROOT_DIR}/fpk/cmd/main" status | grep -Eq '^running \([0-9]+\)$'
 TRIM_APPDEST="${APPDEST}" TRIM_PKGVAR="${VAR_DIR}" "${ROOT_DIR}/fpk/cmd/main" stop
 [[ ! -e "${PID_FILE}" ]]

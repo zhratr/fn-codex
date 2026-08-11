@@ -67,6 +67,8 @@ extract_tar_entry "${PACKAGE}" cmd/install_init >"${WORK}/install_init"
 extract_tar_entry "${PACKAGE}" cmd/main >"${WORK}/cmd-main"
 grep -Fq '/proc/${pid}/cmdline' "${WORK}/cmd-main"
 grep -Fq 'rm -f "${PID_FILE}"' "${WORK}/cmd-main"
+grep -Fq 'ACTION="${1:-start}"' "${WORK}/cmd-main"
+grep -Fq 'fn-codex lifecycle:' "${WORK}/cmd-main"
 extract_tar_entry "${PACKAGE}" config/resource >"${WORK}/resource"
 cmp -s <(printf '%s' "${EXPECTED_RESOURCE}") "${WORK}/resource" || { echo "config/resource must match the NAS-validated data-share definition" >&2; exit 1; }
 
